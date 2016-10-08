@@ -1,5 +1,7 @@
 # Combine twitter and weather data to produce tweets labeled by weather
 import json
+from nltk.classify import NaiveBayesClassifier
+from functools import partial
 
 tweets = []
 previous_weather = None
@@ -9,11 +11,7 @@ for line in open('data/weatherData.json', 'r'):
     line = json.loads(line)
     current_weather = str(unicode(line['weather'][0]['main'])).replace("'", "")
     current_time = line['dt']
-    print current_weather, current_time
-    if previous_weather == current_weather:
-        # Still in the same type of weather...
-        continue
-    else:
+    if previous_weather != current_weather:
         # Hit a new weather type
         if previous_weather == None:
             # If this is the first weather instance we have seen
@@ -35,8 +33,37 @@ for line in open('data/weatherData.json', 'r'):
 #add final time
 observed_weather[previous_weather][-1].append(current_time)
 
-print observed_weather
+tweets_by_weather = {}
+#### Look at twitter data
+for key, value in observed_weather.iteritems():
+    tweets_by_weather[key] = []
+
+for line in open('data/twitter_data_formated.json', 'r'):
+    line = json.loads(line)
+    tweet = line['text']
+    tweet_time = line['timestamp']
+    for key, value in observed_weather.iteritems():
+        key = str(key)
+        for time_range in value:
+            if tweet_time > time_range[0] and tweet_time <= time_range[1]:
+                tweets_by_weather[key].append(tweet)
+
+def features(sentence,):
+    words = sentence.lower().split()
+    return dict(('contains(%s)' % w, True) for w in words)
 
 
+clear_featuresets = list(map(features, tweets_by_weather['Clear']))
+cloudy_featuresets = list(map(features, tweets_by_weather['Clouds']))
 
+new_clear, new_cloudy = [], []
+for element in clear_featuresets:
+    new_clear.append((element, 'Clear'))
+for element in cloudy_featuresets:
+    new_cloudy.append((element, 'Cloudy'))
+
+final_data = new_clear + new_cloudy
+
+classifier = NaiveBayesClassifier.train(final_data)
+classifier.show_most_informative_features()
 
