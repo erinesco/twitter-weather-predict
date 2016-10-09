@@ -42,16 +42,16 @@ def features(sentence):
     words = sentence.lower().split()
     return dict(('contains(%s)' % w, True) for w in words)
 
+def label_data(featureset, label):
+    labeled_data = []
+    for element in featureset:
+        labeled_data.append((element, label))
+    return labeled_data
+
 def compute_features(tweets_by_weather):
     clear_featuresets = list(map(features, tweets_by_weather['Clear']))
     cloudy_featuresets = list(map(features, tweets_by_weather['Clouds']))
-    new_clear, new_cloudy = [], []
-
-    for element in clear_featuresets:
-        new_clear.append((element, 'Clear'))
-    for element in cloudy_featuresets:
-        new_cloudy.append((element, 'Cloudy'))
-    final_data = new_clear + new_cloudy
+    final_data = label_data(clear_featuresets, 'Clear') + label_data(cloudy_featuresets, 'Clouds')
     return final_data
 
 # Get observed weather in formatted time ranges
