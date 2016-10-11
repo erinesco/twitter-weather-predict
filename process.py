@@ -62,7 +62,6 @@ def label_data(featureset, label):
 def compute_features(tweets_by_weather):
     clear_featuresets = list(map(features, tweets_by_weather['Clear']))
     cloudy_featuresets = list(map(features, tweets_by_weather['Clouds']))
-<<<<<<< HEAD
     rain_featuresets = list(map(features, tweets_by_weather['Rain']))
     new_clear, new_cloudy, new_rain = [], [], []
 
@@ -193,5 +192,4 @@ def cross_validate(data_chunks):
     return sum(averages)/len(averages)
 print "AVERAGE ACCURACY: " + str(cross_validate(data_chunks))
 #classifier.show_most_informative_features()
->>>>>>> fe80aae219817c503f57185739a372660c1339c9
 
