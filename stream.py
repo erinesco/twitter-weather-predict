@@ -4,10 +4,10 @@ from tweepy import OAuthHandler
 from tweepy import Stream
 
 #Variables that contains the user credentials to access Twitter API
-access_token = "333824526-Mbcqo0jLcCykFVKJNX9yztNcts6WonmbARvsC19v"
-access_token_secret = "tD9iBpnWF5WvqMFzYsTpQlv8wlYaogrvVsqfmJ0GK09VT"
-consumer_key = "euRoqSWyzz3FpHHbsV1DIOG09"
-consumer_secret = "mMFNYUg2LDhAWqh4OnOsEBLFHkPnreop6Mi7O3WU2CAD7Y59Vy"
+access_token = "accesstoken"
+access_token_secret = "accesstokensecret"
+consumer_key = "consumerkey"
+consumer_secret = "consumersecret"
 
 
 filewrite = 'data/twitter_data.txt'
