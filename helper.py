@@ -1,14 +1,13 @@
-# Combine twitter and weather data to produce tweets labeled by weather
 import json
 import sys
 import codecs
 
 from functools import partial
 
-from nltk.classify import NaiveBayesClassifier
 import random
 import math
 import copy
+from nltk.classify import NaiveBayesClassifier
 
 def format_observed_weather():
     previous_weather = None
@@ -59,26 +58,9 @@ def label_data(featureset, label):
 def compute_features(tweets_by_weather):
     clear_featuresets = list(map(features, tweets_by_weather['Clear']))
     cloudy_featuresets = list(map(features, tweets_by_weather['Clouds']))
-    final_data = label_data(clear_featuresets, 'Clear') + label_data(cloudy_featuresets, 'Clouds')
+    rainy_featuresets = list(map(features, tweets_by_weather['Rain']))
+    final_data = label_data(clear_featuresets, 'Clear') + label_data(cloudy_featuresets, 'Clouds') + label_data(rainy_featuresets, 'Rain')
     return final_data
-
-def compute_features_decision_tree(tweets_by_weather):
-    clear_featuresets = list(map(features, tweets_by_weather['Clear']))
-    cloudy_featuresets = list(map(features, tweets_by_weather['Clouds']))
-    rain_featuresets = list(map(features, tweets_by_weather['Rain']))
-    new_clear, new_cloudy, new_rain = [], [], []
-
-
-    for element in clear_featuresets:
-        new_clear.append((element, 'Clear'))
-    for element in cloudy_featuresets:
-        new_cloudy.append((element, 'Clouds'))
-    for element in rain_featuresets:
-        new_rain.append((element, 'Rain'))
-    final_data = new_clear + new_cloudy + new_rain
-    return final_data
-
-
 
 def divide_data(final_data, folds):
     data_chunks = []
@@ -99,26 +81,46 @@ def divide_data(final_data, folds):
         data_chunks.append(test_data)
     return data_chunks
 
-# Get observed weather in formatted time ranges
-observed_weather = format_observed_weather()
-# Assign tweets to their respective time range and weather
-tweets_by_weather = find_tweets_weather(observed_weather)
-# Compute features (words) and their labels
-final_data = compute_features(tweets_by_weather)
-data_chunks = divide_data(final_data, 2)
+def divide_data_fast(data, folds):
+    data_chunks = [[] for i in xrange(folds)]
+    random.shuffle(data)
+    chunk_size = math.ceil(len(data) / folds)
+    chunk_index = 0
+    for element in data:
+        data_chunks[chunk_index].append(element)
+        chunk_index += 1
+        if chunk_index >= len(data_chunks):
+            chunk_index = 0
+    return data_chunks
 
-def cross_validate(data_chunks):
-    train_data = []
+
+
+
+def cross_validate(data_chunks, learner, training_function_string, classification_function_string):
+    print 'cross val'
+
+    
     averages = []
     for i in range(0,len(data_chunks)):
+        train_data = []
         correct, total = 0, 0
         train_chunks = data_chunks
         test_chunk = train_chunks[i]
-        train_chunks[i] = []
+        chunk_count = 0
         for chunk in train_chunks:
-            for tweet in chunk:
-                train_data.append(tweet)
-        classifier = NaiveBayesClassifier.train(train_data)
+            if chunk_count != i:
+                for tweet in chunk:
+                    train_data.append(tweet)
+            chunk_count += 1
+        
+        print 'Before Attr'
+        # classifyMethod = getattr(learner, classification_function_string)
+        # trainingMethod = getattr(learner, training_function_string)
+        model = NaiveBayesClassifier
+        classifier = model.train(train_data)
+        print 'Before Train'
+        #classifier = trainingMethod(train_data)
+        print 'Before test'
         for tweet in test_chunk:
             total += 1
             if tweet[1] == classifier.classify(tweet[0]):
@@ -126,7 +128,6 @@ def cross_validate(data_chunks):
         accuracy = float(correct) / float(total)
         averages.append(accuracy)
         print "Fold: " + str(i+1) + ", Accuracy: " + str(accuracy)
+    #classifier.show_most_informative_features()
     return sum(averages)/len(averages)
-print "AVERAGE ACCURACY: " + str(cross_validate(data_chunks))
-#classifier.show_most_informative_features()
 
