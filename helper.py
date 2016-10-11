@@ -1,4 +1,9 @@
 import json
+import sys
+import codecs
+
+from functools import partial
+
 import random
 import math
 import copy
@@ -76,18 +81,46 @@ def divide_data(final_data, folds):
         data_chunks.append(test_data)
     return data_chunks
 
-def cross_validate(data_chunks):
-    train_data = []
+def divide_data_fast(data, folds):
+    data_chunks = [[] for i in xrange(folds)]
+    random.shuffle(data)
+    chunk_size = math.ceil(len(data) / folds)
+    chunk_index = 0
+    for element in data:
+        data_chunks[chunk_index].append(element)
+        chunk_index += 1
+        if chunk_index >= len(data_chunks):
+            chunk_index = 0
+    return data_chunks
+
+
+
+
+def cross_validate(data_chunks, learner, training_function_string, classification_function_string):
+    print 'cross val'
+
+    
     averages = []
     for i in range(0,len(data_chunks)):
+        train_data = []
         correct, total = 0, 0
         train_chunks = data_chunks
         test_chunk = train_chunks[i]
-        train_chunks[i] = []
+        chunk_count = 0
         for chunk in train_chunks:
-            for tweet in chunk:
-                train_data.append(tweet)
-        classifier = NaiveBayesClassifier.train(train_data)
+            if chunk_count != i:
+                for tweet in chunk:
+                    train_data.append(tweet)
+            chunk_count += 1
+        
+        print 'Before Attr'
+        # classifyMethod = getattr(learner, classification_function_string)
+        # trainingMethod = getattr(learner, training_function_string)
+        model = NaiveBayesClassifier
+        classifier = model.train(train_data)
+        print 'Before Train'
+        #classifier = trainingMethod(train_data)
+        print 'Before test'
         for tweet in test_chunk:
             total += 1
             if tweet[1] == classifier.classify(tweet[0]):
@@ -95,5 +128,6 @@ def cross_validate(data_chunks):
         accuracy = float(correct) / float(total)
         averages.append(accuracy)
         print "Fold: " + str(i+1) + ", Accuracy: " + str(accuracy)
-    classifier.show_most_informative_features()
+    #classifier.show_most_informative_features()
     return sum(averages)/len(averages)
+
