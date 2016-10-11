@@ -141,8 +141,6 @@ def svm(): #Ignore this function for right now. It works but I need to test it w
 
 
 
-
-=======
     final_data = label_data(clear_featuresets, 'Clear') + label_data(cloudy_featuresets, 'Clouds')
     return final_data
 
