@@ -1,7 +1,9 @@
 # Combine twitter and weather data to produce tweets labeled by weather
 import json
 from nltk.classify import NaiveBayesClassifier
-from functools import partial
+import random
+import math
+
 def format_observed_weather():
     previous_weather = None
     observed_weather = {}
@@ -54,13 +56,24 @@ def compute_features(tweets_by_weather):
     final_data = label_data(clear_featuresets, 'Clear') + label_data(cloudy_featuresets, 'Clouds')
     return final_data
 
+def divide_data(final_data):
+    data_amount = len(final_data)
+    train_amount = int(math.floor(0.8*data_amount))
+    print train_amount
+    random.shuffle(final_data)
+    train_data = final_data[:train_amount]
+    test_data = final_data[train_amount+1:]
+    return train_data, test_data
+
 # Get observed weather in formatted time ranges
 observed_weather = format_observed_weather()
 # Assign tweets to their respective time range and weather
 tweets_by_weather = find_tweets_weather(observed_weather)
 # Compute features (words) and their labels
 final_data = compute_features(tweets_by_weather)
+train_data, test_data = divide_data(final_data)
 
 classifier = NaiveBayesClassifier.train(final_data)
 classifier.show_most_informative_features()
+print classifier.classify(features('Loving my pumpkin spice latte in dis coat'))
 
