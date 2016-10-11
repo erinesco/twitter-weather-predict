@@ -3,7 +3,7 @@ import json
 import sys
 import codecs
 
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
+#from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from sklearn.svm import LinearSVC
 from nltk.classify.scikitlearn import SklearnClassifier
 from functools import partial
@@ -123,8 +123,8 @@ def svm(): #Ignore this function for right now. It works but I need to test it w
 	#classifier.show_most_informative_features()
 	#dt_classifier = nltk.classify.decisiontree.DecisionTreeClassifier.train(final_data)
 	#print nltk.sentiment.vader.SentiText('I am angry')._words_and_emoticons()
-	st = SentimentIntensityAnalyzer()
-	print st.polarity_scores('I am Happy and Angry') #This works
+	#st = SentimentIntensityAnalyzer()
+	#print st.polarity_scores('I am Happy and Angry') #This works
 	#dt_classifier.train(final_data)
 
 
