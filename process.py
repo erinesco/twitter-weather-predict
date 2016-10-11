@@ -1,16 +1,10 @@
 # Combine twitter and weather data to produce tweets labeled by weather
 import json
-<<<<<<< HEAD
 import sys
 import codecs
 
-#from nltk.sentiment.vader import SentimentIntensityAnalyzer
-from sklearn.svm import LinearSVC
-from nltk.classify.scikitlearn import SklearnClassifier
 from functools import partial
 
-=======
->>>>>>> fe80aae219817c503f57185739a372660c1339c9
 from nltk.classify import NaiveBayesClassifier
 import random
 import math
@@ -84,52 +78,7 @@ def compute_features_decision_tree(tweets_by_weather):
     final_data = new_clear + new_cloudy + new_rain
     return final_data
 
-def svm(): #Ignore this function for right now. It works but I need to test it with cross validation still
-	sys.stdout = codecs.getwriter('utf8')(sys.stdout)
-	sys.stderr = codecs.getwriter('utf8')(sys.stderr)
-	# Get observed weather in formatted time ranges
-	observed_weather = format_observed_weather()
-	# Assign tweets to their respective time range and weather
-	tweets_by_weather = find_tweets_weather(observed_weather)
 
-	# Compute features (words) and their labels
-	final_data = compute_features(tweets_by_weather)
-	final_data = compute_features_decision_tree(tweets_by_weather)
-	#print final_data
-
-	classif = SklearnClassifier(LinearSVC(multi_class='crammer_singer'))
-	classif.train(final_data)
-	count_correct = 0
-	count_total = 0
-	count_clouds = 0
-	count_rain = 0
-	for classification, class_tweets in tweets_by_weather.iteritems():
-		print '-----' + classification + '--------------'
-		for tweet in class_tweets:
-			result = classif.classify_many(features(tweet))
-			#print result
-			if result[0] == classification:
-				count_correct += 1
-			if classification == 'Clouds':
-				count_clouds += 1
-			if classification == 'Rain':
-				count_rain += 1
-			count_total +=1
-	print 'Correct ' + str(count_correct)
-	print 'Total ' + str(count_total)
-	print 'Percentage Correct ' + str(float(count_correct) / float(count_total))
-	print 'clouds ' + str(count_clouds)
-	print 'rain ' + str(count_rain)
-	#result = classif.classify_many(features('yo yo yo mathew'))
-	print result
-	print classif.labels()
-	#classifier = nltk.classify.NaiveBayesClassifier.train(final_data)
-	#classifier.show_most_informative_features()
-	#dt_classifier = nltk.classify.decisiontree.DecisionTreeClassifier.train(final_data)
-	#print nltk.sentiment.vader.SentiText('I am angry')._words_and_emoticons()
-	#st = SentimentIntensityAnalyzer()
-	#print st.polarity_scores('I am Happy and Angry') #This works
-	#dt_classifier.train(final_data)
 
 def divide_data(final_data, folds):
     data_chunks = []
