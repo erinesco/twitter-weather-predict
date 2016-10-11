@@ -82,7 +82,7 @@ observed_weather = format_observed_weather()
 tweets_by_weather = find_tweets_weather(observed_weather)
 # Compute features (words) and their labels
 final_data = compute_features(tweets_by_weather)
-data_chunks = divide_data(final_data, 5)
+data_chunks = divide_data(final_data, 2)
 
 def cross_validate(data_chunks):
     train_data = []
