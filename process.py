@@ -1,5 +1,6 @@
 # Combine twitter and weather data to produce tweets labeled by weather
 import json
+<<<<<<< HEAD
 import sys
 import codecs
 
@@ -8,6 +9,8 @@ from sklearn.svm import LinearSVC
 from nltk.classify.scikitlearn import SklearnClassifier
 from functools import partial
 
+=======
+>>>>>>> fe80aae219817c503f57185739a372660c1339c9
 from nltk.classify import NaiveBayesClassifier
 import random
 import math
@@ -62,17 +65,7 @@ def label_data(featureset, label):
 def compute_features(tweets_by_weather):
     clear_featuresets = list(map(features, tweets_by_weather['Clear']))
     cloudy_featuresets = list(map(features, tweets_by_weather['Clouds']))
-    rain_featuresets = list(map(features, tweets_by_weather['Rain']))
-    new_clear, new_cloudy, new_rain = [], [], []
-
-
-    for element in clear_featuresets:
-        new_clear.append((element, 'Clear'))
-    for element in cloudy_featuresets:
-        new_cloudy.append((element, 'Clouds'))
-    for element in rain_featuresets:
-        new_rain.append((element, 'Rain'))
-    final_data = new_clear + new_cloudy + new_rain
+    final_data = label_data(clear_featuresets, 'Clear') + label_data(cloudy_featuresets, 'Clouds')
     return final_data
 
 def compute_features_decision_tree(tweets_by_weather):
@@ -137,11 +130,6 @@ def svm(): #Ignore this function for right now. It works but I need to test it w
 	#st = SentimentIntensityAnalyzer()
 	#print st.polarity_scores('I am Happy and Angry') #This works
 	#dt_classifier.train(final_data)
-
-
-
-    final_data = label_data(clear_featuresets, 'Clear') + label_data(cloudy_featuresets, 'Clouds')
-    return final_data
 
 def divide_data(final_data, folds):
     data_chunks = []
