@@ -1,13 +1,8 @@
 import json
-import sys
-import codecs
-
-from functools import partial
-
 import random
 import math
 import copy
-from nltk.classify import NaiveBayesClassifier
+import time
 
 def format_observed_weather():
     previous_weather = None
@@ -56,10 +51,13 @@ def label_data(featureset, label):
     return labeled_data
 
 def compute_features(tweets_by_weather):
-    clear_featuresets = list(map(features, tweets_by_weather['Clear']))
-    cloudy_featuresets = list(map(features, tweets_by_weather['Clouds']))
-    rainy_featuresets = list(map(features, tweets_by_weather['Rain']))
-    final_data = label_data(clear_featuresets, 'Clear') + label_data(cloudy_featuresets, 'Clouds') + label_data(rainy_featuresets, 'Rain')
+    weather_types = ["Clear", "Clouds", "Rain", "Extreme", "Thunderstorms", "Drizzle", "Snow", "Atmosphere", "Additional"]
+    final_data = list()
+    for weather in weather_types:
+        try:
+            final_data += label_data( list(map(features, tweets_by_weather[weather])), weather)
+        except KeyError, e:
+            continue #Might not have every weather type
     return final_data
 
 def divide_data(final_data, folds):
@@ -93,18 +91,14 @@ def divide_data_fast(data, folds):
             chunk_index = 0
     return data_chunks
 
-
-
-
-def cross_validate(data_chunks, learner, training_function_string, classification_function_string):
-    print 'cross val'
-
-    
-    averages = []
+def cross_validate(data, folds, learner):
+    data_chunks = divide_data_fast(data, folds)
+    sum_accuracy = 0
+    sum_train_time = 0
     for i in range(0,len(data_chunks)):
         train_data = []
         correct, total = 0, 0
-        train_chunks = data_chunks
+        train_chunks = copy.deepcopy(data_chunks)
         test_chunk = train_chunks[i]
         chunk_count = 0
         for chunk in train_chunks:
@@ -112,22 +106,25 @@ def cross_validate(data_chunks, learner, training_function_string, classificatio
                 for tweet in chunk:
                     train_data.append(tweet)
             chunk_count += 1
-        
-        print 'Before Attr'
-        # classifyMethod = getattr(learner, classification_function_string)
-        # trainingMethod = getattr(learner, training_function_string)
-        model = NaiveBayesClassifier
-        classifier = model.train(train_data)
-        print 'Before Train'
-        #classifier = trainingMethod(train_data)
-        print 'Before test'
+        start_time = time.time()
+        model = learner.train(train_data)
+        elapsed_time = time.time() - start_time
+        sum_train_time += elapsed_time
         for tweet in test_chunk:
             total += 1
-            if tweet[1] == classifier.classify(tweet[0]):
-               correct += 1
+            if tweet[1] == model.classify(tweet[0]):
+                correct += 1
         accuracy = float(correct) / float(total)
-        averages.append(accuracy)
+        sum_accuracy += accuracy
+        
         print "Fold: " + str(i+1) + ", Accuracy: " + str(accuracy)
+        print "Training Time: " + str(elapsed_time)
+        print
     #classifier.show_most_informative_features()
-    return sum(averages)/len(averages)
+    average_accuracy = float(sum_accuracy) / float(folds)
+    average_training_time = float(sum_train_time) / float(folds)
+    print "Average Accuracy: " + str(average_accuracy)
+    print "Average Training Time: " + str(average_training_time)
+    
+    return average_accuracy
 

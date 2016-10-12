@@ -1,7 +1,9 @@
 #Import the necessary methods
-import json
+import simplejson as json
 import io
 import re
+import sys
+import codecs
 
 # filewrite = 'data/twitter_data.txt'
 # datafile = open(filewrite, 'w')
@@ -98,6 +100,9 @@ class NoviceLearner():
                 print 'error'
 
     def generate_no_learning_estimate(self):
+        sys.stdout = codecs.getwriter('utf8')(sys.stdout)
+        sys.stderr = codecs.getwriter('utf8')(sys.stderr)
+
         data_file_uri = 'data/twitter_data_formated.json'
         data_file = io.open(data_file_uri, 'r', newline='\r\n', encoding='utf8')
 
@@ -121,8 +126,9 @@ class NoviceLearner():
 
         previous_weather = 'clear'
 
-        for line in data_file:
+        correct, total = 0, 0
 
+        for line in data_file:
             data = json.loads(line, encoding='utf8')
             output_to_file = True
             #print weather_line_next['dt']
@@ -136,8 +142,10 @@ class NoviceLearner():
                             maxCatagorie = catagorie
                             maxVotes = vote_count
                     previous_weather = maxCatagorie
+                    if maxCatagorie == weather_line_current['weather'][0]['main'].strip().lower():
+                        correct += 1
                     result_file.write(maxCatagorie + u',' + weather_line_current['weather'][0]['main'] + u'\n') #need to make this convert to catagories
-
+                    total += 1
                     output_to_file = False
 
                 catagorie_scores = {
@@ -150,6 +158,9 @@ class NoviceLearner():
                     weather_line_next = json.loads(text_line, encoding='utf8')
                 else:
                     print "Used Tweet Count " + str(count + 1)
+                    print "Correct Weathers " + str(correct)
+                    print "Total Weathers " + str(total)
+                    print "Percent Correct " + str(float(correct) / float(total))
                     return
             
             text_array = re.findall(r"[\w']+", data['text'])
@@ -159,6 +170,11 @@ class NoviceLearner():
                     if word.lower() in self.catagories[weather_catagorie]:
                         catagorie_scores[weather_catagorie] += 1
             count += 1
+        print "Used Tweet Count " + str(count + 1)
+        print "Correct Weathers " + str(correct)
+        print "Total Weathers " + str(total)
+        print "Percent Correct " + str(float(correct) / float(total))
+        return
                         
                         
        
@@ -167,4 +183,4 @@ class NoviceLearner():
 if __name__ == '__main__':
     nl = NoviceLearner()
     nl.simplify_twitter_file()
-    nl.generate_no_learning_estimate()
+    #nl.generate_no_learning_estimate()
