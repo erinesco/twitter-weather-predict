@@ -1,16 +1,7 @@
 import json
-import sys
-import codecs
-
-from functools import partial
-
 import random
 import math
 import copy
-from nltk.classify import NaiveBayesClassifier
-
-from sklearn.svm import LinearSVC
-from nltk.classify.scikitlearn import SklearnClassifier
 
 def format_observed_weather():
     previous_weather = None
@@ -99,7 +90,7 @@ def divide_data_fast(data, folds):
 
 
 
-def cross_validate(data_chunks, learner, training_function_string, classification_function_string):
+def cross_validate(data_chunks, learner):
     
     averages = []
     for i in range(0,len(data_chunks)):
@@ -114,22 +105,10 @@ def cross_validate(data_chunks, learner, training_function_string, classificatio
                     train_data.append(tweet)
             chunk_count += 1
         
-        print 'Before Attr'
-        sys.stdout.flush()
-        #classifyMethod = getattr(learner, classification_function_string)
-        #trainingMethod = getattr(learner, training_function_string)
-        model = SklearnClassifier(LinearSVC(multi_class='crammer_singer'))
-        model.train(train_data)
-       # model = NaiveBayesClassifier
-        #classifier = model.train(train_data)
-        print 'Before Train'
-        sys.stdout.flush()
-        #classifier = trainingMethod(train_data)
-        print 'Before test'
+        model = learner.train(train_data)
         for tweet in test_chunk:
             total += 1
-            if tweet[1] == model.classify_many(tweet[0]):#classifyMethod(tweet[0]):#:classifier.classify(tweet[0]):
-               correct += 1
+            if tweet[1] == model.classify(tweet[0]):
         accuracy = float(correct) / float(total)
         averages.append(accuracy)
         print "Fold: " + str(i+1) + ", Accuracy: " + str(accuracy)
