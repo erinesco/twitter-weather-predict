@@ -4,6 +4,7 @@ import io
 import re
 import sys
 import codecs
+import time
 
 # filewrite = 'data/twitter_data.txt'
 # datafile = open(filewrite, 'w')
@@ -24,22 +25,23 @@ class NoviceLearner():
             "drizzle": {
                 "drizzle" : "drizzle",
                 "droplets" : "droplets",
-                "sprinkle" : "sprinkle"
+                "sprinkle" : "sprinkle",
+                "wet out" : "wet out",
+                "light rain" : "light rain",
+                "cloudy" : "cloudy",
             },
             "rain" : {
                 "rain" : "rain",
                 "rainy" : "rainy",
                 "wet" : "wet",
                 "soaked" : "soaked",
-                "drive slow" : "snow"
+                "drive slow" : "snow",
+                "wet roads" : "wet roads"
             },
             "snow" : {
                 "snow" : "snow",
-                "ice" : "ice",
                 "snowflakes" : "snowflakes",
-                "going skiing" : "going skiing",
                 "sleding" : "sleding",
-                "white powder" : "white powder",
                 "salting roads" : "salting roads",
                 "shoveling" : "shoveling",
                 "snowblower" : "snowblower"
@@ -56,11 +58,9 @@ class NoviceLearner():
                 "clear" : "clear",
                 "nice day" : "nice day",
                 "sunny" : "sunny",
-                "not a cloud in the sky" : "not a cloud in the sky",
                 "sunshine" : "sunshine",
                 "no clouds" : "no cloads",
                 "calm" : "calm",
-                "perfect day": "perfect day"
             },
             "clouds" : {
                 "cloud" : "cloud",
@@ -74,7 +74,10 @@ class NoviceLearner():
                 "tornado" : "tornado",
                 "tropical storm" : "tropical storm",
                 "hurricane" : "hurricane",
-                "hail" : "hail"
+                "hail" : "hail",
+                "volcano" : "volcano",
+                "cyclone" : "cyclone"
+
             },
             "additional" : {
                 #this overlaps with alot of stuff
@@ -126,6 +129,7 @@ class NoviceLearner():
 
         previous_weather = 'clear'
 
+        start_time = time.time()
         correct, total = 0, 0
 
         for line in data_file:
@@ -161,6 +165,7 @@ class NoviceLearner():
                     print "Correct Weathers " + str(correct)
                     print "Total Weathers " + str(total)
                     print "Percent Correct " + str(float(correct) / float(total))
+                    print "Time " + str(float(time.time()) - float(start_time))
                     return
             
             text_array = re.findall(r"[\w']+", data['text'])
@@ -182,5 +187,5 @@ class NoviceLearner():
 
 if __name__ == '__main__':
     nl = NoviceLearner()
-    nl.simplify_twitter_file()
-    #nl.generate_no_learning_estimate()
+    #nl.simplify_twitter_file()
+    nl.generate_no_learning_estimate()
