@@ -55,11 +55,14 @@ def label_data(featureset, label):
         labeled_data.append((element, label))
     return labeled_data
 
+weather_types = ["Clear", "Clouds", "Rain", "Extreme", "Thunderstorms", "Drizzle", "Snow", "Atmosphere", "Additional"]
 def compute_features(tweets_by_weather):
-    clear_featuresets = list(map(features, tweets_by_weather['Clear']))
-    cloudy_featuresets = list(map(features, tweets_by_weather['Clouds']))
-    rainy_featuresets = list(map(features, tweets_by_weather['Rain']))
-    final_data = label_data(clear_featuresets, 'Clear') + label_data(cloudy_featuresets, 'Clouds') + label_data(rainy_featuresets, 'Rain')
+    final_data = list()
+    for weather in weather_types:
+        try:
+            final_data += label_data( list(map(features, tweets_by_weather[weather])), weather)
+        except KeyError, e:
+            continue #Might not have every weather type
     return final_data
 
 def divide_data(final_data, folds):
@@ -96,15 +99,12 @@ def divide_data_fast(data, folds):
 
 
 
-def cross_validate(data_chunks, learner, training_function_string, classification_function_string):
-    print 'cross val'
-
-    
+def cross_validate(data_chunks):
     averages = []
     for i in range(0,len(data_chunks)):
         train_data = []
         correct, total = 0, 0
-        train_chunks = data_chunks
+        train_chunks = copy.deepcopy(data_chunks)
         test_chunk = train_chunks[i]
         chunk_count = 0
         for chunk in train_chunks:
@@ -112,15 +112,7 @@ def cross_validate(data_chunks, learner, training_function_string, classificatio
                 for tweet in chunk:
                     train_data.append(tweet)
             chunk_count += 1
-        
-        print 'Before Attr'
-        # classifyMethod = getattr(learner, classification_function_string)
-        # trainingMethod = getattr(learner, training_function_string)
-        model = NaiveBayesClassifier
-        classifier = model.train(train_data)
-        print 'Before Train'
-        #classifier = trainingMethod(train_data)
-        print 'Before test'
+        classifier = NaiveBayesClassifier.train(train_data)
         for tweet in test_chunk:
             total += 1
             if tweet[1] == classifier.classify(tweet[0]):
@@ -128,6 +120,6 @@ def cross_validate(data_chunks, learner, training_function_string, classificatio
         accuracy = float(correct) / float(total)
         averages.append(accuracy)
         print "Fold: " + str(i+1) + ", Accuracy: " + str(accuracy)
-    #classifier.show_most_informative_features()
+    classifier.show_most_informative_features()
     return sum(averages)/len(averages)
 
