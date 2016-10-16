@@ -118,10 +118,95 @@ The word coat indicates it is cloudy out with high certainty as well as the word
 <p>Positive Naive Bayes needs to train three models for every iteration, and classify the test set three times. There is only a slight increase in time required for training and testing more folds. The individual time for the three different models is almost identical, and the time for all of them scales to be three times slower. It also requires much lower run time than naive bayes models that include all three types of weather. 
 <img src="http://i67.tinypic.com/fw7hxc.jpg" alt="Figure 6: Positive Naive Bayes training time vs number of folds"></p>
 
+<h4>
+<a id="accuracy-2" class="anchor" href="#accuracy-2" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Accuracy</h4>
+
+<p><img src="http://i66.tinypic.com/19tdhw.jpg" alt="Figure 7: Positive Naive Bayes Accuracy vs number of folds. ">
+Two metrics were used to calculate the success rate when testing all the models together. In the earlier implementation of Naive Bayes tweets could only be classified as one type of weather, however when trying all models multiple a false positive can occur and tweets could be classified as multiple weather types. Ideally, if there were multiple false positives the certainty for each classification could be evaluated to chose a winner.  However this was not practical using the NLTK API. For the points, in the figure above, labeled as “Averages: Combined w/ False Positives”  each model contributed to overall accuracy percentage. For each test tweet to receive a full point it needed to be classified correctly three times, and would receive partial credit in the scenario of a false positive. This levels out at a success rate of 48%. In the set of points labeled “Average Combined” awards a point for correctly determining the weather and ignores false positives. This levels out to have a success rate of 56%. Ideally, with an additional evaluation step, false positives could be filtered out correctly and have better than 48% accuracy. 
+As the classifier is broken up by weather it is also easier to see how well each type of weather is predicted. The classification for clear days performs the best. During the data collection period, clear weather was seen the most common weather. As a result, both blindly classifying all tweets as ‘clear’ would be the most accurate and there is more training data for ‘Clear’ days with leads to a better model. </p>
+
+<h3>
+<a id="support-vector-machine" class="anchor" href="#support-vector-machine" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>SUPPORT VECTOR MACHINE</h3>
+
+<h4>
+<a id="overview-3" class="anchor" href="#overview-3" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Overview</h4>
+
+<p>The last traditional machine learning method which was employed was a Linear Support Vector Machine (SVM). This method tries to define a decision boundary equidistant between the boundaries of data set categories. This can be seen more clear in the example shown in Figure 8. 
+<img src="http://i64.tinypic.com/2wnpvkn.jpg" alt="Figure 8: An example of the principle of a support vector machine from Stuart and Norvig"></p>
+
+<p>The dotted lines in Figure 8 represent the closest possible boundary of the training data. The SVM algorithm defines the decision boundary as the line equally distant from these boundaries. It might initially seem that SVM is therefore limited to linear models. However, kernels can be applied to nonlinear data to increase its dimensionality. It is then possible to generate linear hyperplanes to divide this high dimensional data. These high dimensional solutions can then be converted back into the original dimension as non linear decision boundaries. Because of their complex and, simultaneously, linear nature SVM’s can generalize well. While SVM’s have reasonable training times they are not nearly as quick as a solution as methods like Naive Bayes (Stuart and Norvig, 2010, p 744 - 748) 
+We implemented an SVM using the SVMs available as part of the Scikit-Learn python library. NLTK provides a wrapper for this library which made it possible to integrate it into our code. Three different methods of SVM were evaluated with the most successful one being used in our final algorithm the Ensemble. The tests SVMs were:
+1 Linear SVM: This method used a traditional linear kernel for the SVM classifier and compared classifications as one-vs-all others
+2 Crammer, Singer Multi Class: This method was the same as Linear SVM except it used a many-vs-many classification
+3 Nonlinear SVM: This method used the Radial Basis Function as the kernel allowing the SVM to generate nonlinear decision boundaries. </p>
+
+<h4>
+<a id="accuracy-3" class="anchor" href="#accuracy-3" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Accuracy</h4>
+
+<p>To evaluate the accuracy and execution time of each algorithm 5 fold cross validation was used. The averaged results of these tests are shown in Figure 9. 
+<img src="http://i67.tinypic.com/sqkxh2.jpg" alt="Figure 9: A comparison of average training time and accuracy between three SVM methods when using 5 fold cross validation. "></p>
+
+<p>Based on the results traditional Linear SVM was superior to the other methods by far. With both the highest accuracy at 62.5% and the shortest running time at 34.15 seconds. These results were somewhat surprising. While Crammer, Singer performance is consistent with our expectations from research, we expected the more complex RBF kernel algorithms to outperform Linear SVM even if it had a longer running time. It is possible, that there is simply not enough divide amongst the data when using words as features to provide a benefit for complex decision boundaries vs linear ones.</p>
+
+<h3>
+<a id="ensembling" class="anchor" href="#ensembling" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>ENSEMBLING</h3>
+
+<h4>
+<a id="overview-4" class="anchor" href="#overview-4" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Overview</h4>
+
+<pre><code>In order to increase to the accuracy of our learning algorithms we decided to combine the predictions from each one in an ensemble. Alone each of our learning algorithms have an accuracy of around 60%, but combining their predictions increases our expected accuracy and confidence. In order to actually combine the algorithms we first trained each one of them separately and then, once training has been completed, new tweets are fed into the ensemble. Each new tweet is classified by each learning algorithm and then the predictions are used to vote for what the ensemble will use as its prediction. For example if the Naive Bayes algorithm’s prediction agrees with that of the SVM algorithm but not with the Positive Naive Bayes algorithm then the vote of 2 to 1 will result in the ensemble’s prediction matching that of the Naive Bayes and SVM algorithms. 
+</code></pre>
+
+<h4>
+<a id="accuracy-4" class="anchor" href="#accuracy-4" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Accuracy</h4>
+
+<p>To evaluate the accuracy of the ensemble we used different training percentages and equivalent testing percentages in order to find ratio that gave the highest accuracy. The results are shown in the graph below.
+<img src="http://i67.tinypic.com/34ozytu.jpg" alt="Figure 10: A comparison percentage of total data used as training data vs accuracy for the ensemble.">
+The accuracy of our ensemble peaks at a value of 62.5 percent at around 90.9 percent training data vs 9.1 percent test data. Any further increase in training data percentage results in a drastic decrease in accuracy. </p>
+
+<h3>
+<a id="conclusion" class="anchor" href="#conclusion" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>CONCLUSION</h3>
+
+<pre><code>In conclusion, using Twitter to predict the weather in a given area is possible. However, the accuracy of such a weather prediction system could be greatly increased using more data collected from Twitter. We found that using a Naive Bayes learning algorithm on this kind of data is feasible but the maximum accuracy that we were able to achieve was only 60.5%. Comparing this to using a SVM learning algorithm, which was able to achieve an accuracy of 62.5%, the SM learning algorithm is slightly superior. The downside to the SVM algorithm is that it takes longer to train its model then Naive Bayes. We found that the positive Naive Bayes algorithm was not a good choice for this kind of data, mainly because of the way that we determined features. Needing to train on three different data sets was also inefficient and unnecessary for our purposes. The ensemble of all three of these algorithms was intended to improve the overall accuracy of the predictions when compared to the accuracy that each could achieve by itself. However, the maximum accuracy that we were able to achieve for the ensemble was the same as the maximum accuracy for the SVM algorithm. This may be because more data was needed to see any difference in accuracy, but it is more likely that it is because a greater variety of different algorithms was needed. Positive Naive Bayes and Naive Bayes were most likely too similar to one another to result in any real variance, and SVM is what brought the accuracy of the ensemble up to its maximum. Further recommendations for improving weather prediction using Twitter data is included below.
+</code></pre>
+
+<h3>
+<a id="recommendations" class="anchor" href="#recommendations" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>RECOMMENDATIONS</h3>
+
+<h4>
+<a id="feature-selection" class="anchor" href="#feature-selection" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Feature Selection</h4>
+
+<p>After conducting our experiments, it became clear that a major issue with our approach was our feature selection. By using words as features, we restricted our available algorithms to those which worked well with high feature counts. Additionally, it is not clear that word choice itself conveys enough about regional weather. In the future, we suggest that the metadata of the tweets be used instead. This would include such things as retweet frequency, screen name, use of hashtags, etc. Additionally, the implied positivity of the text could be inspected using the Natural Learning Toolkit and used as a feature. This would limit the feature count and expand the number of available algorithms to include methods such as decision trees. Hopefully, this would allow a more accurate algorithm to be developed. </p>
+
+<h4>
+<a id="evaluation--approach" class="anchor" href="#evaluation--approach" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Evaluation  Approach</h4>
+
+<p>The approach to predicting weather could have been improved. The methods discussed above try to classify data based on individual tweets. However, as the Naive keyword based approach showed it can be very beneficial to classify weather based on clumps of tweets instead. This is because it is unlikely most tweets are related to the weather. While there might be some hidden trends of how weather affects word choice it is unlikely they are highly pronounced. Therefore, it would be useful to experiment with training on sets of data. Another potential improvement would be to evaluate tweets by source. For example, a tweet from a weather station might be vastly more reliable than a teenager’s. If these and other methods were explored the algorithms could likely be improved. </p>
+
+<h4>
+<a id="alternative-algorithms" class="anchor" href="#alternative-algorithms" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Alternative Algorithms</h4>
+
+<p>While, we explored the use of 4 different algorithms, other methods are still available. The one most likely to show major improvement is a neural network. The ability of neural nets to deal with complex inputs and data would make them very well suited to this type of classification. Additionally, if the number of features were reduced as described above, then a decision tree could be used. It would be interesting to compare the decision tree with Naive Bayes performance. </p>
+
+<h4>
+<a id="data-collection" class="anchor" href="#data-collection" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Data Collection</h4>
+
+<p>The data collection methods used for these experiments could have been vastly improved if given more time. Primarily, spreading tweet data collection over a whole year would have been particularly interesting. This would allow for the data to reflect almost all possible weather scenarios in the region. The major drawback to this method would be the data required. The tweet data from only ~ 1 week took up over 430Mb of space. Over the course of the year this could add up to almost 22Gb of data. Not an unmanageable about but somewhat inconvenient. However, the increased variety of weather would make this compromise more than worth it. </p>
+
+<h3>
+<a id="credits--citation" class="anchor" href="#credits--citation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>CREDITS &amp; CITATION</h3>
+
+<p>Bird, Steven, Edward Loper and Ewan Klein (2009), Natural Language Processing with Python. O’Reilly Media Inc.</p>
+
+<p>Stuart, R., &amp; Norvig, P. (2010). Artificial Intelligence A Modern Approach (3rd ed.). Upper Saddle River, New Jersey: Pearson Education Inc.</p>
+
+<p>Buitinck, L., Louppe, G., Blondel, M., Pedregosa, F., Mueller, A., Grisel, O., … Varoquaux, G. (2013). {API} design for machine learning software: experiences from the scikit-learn project. In ECML PKDD Workshop: Languages for Data Mining and Machine Learning (pp. 108–122). inproceedings.</p>
+
 <h3>
 <a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Authors and Contributors</h3>
 
-<p><a href="https://github.com/msmcconnell" class="user-mention">@msmcconnell</a>
+<p><a href="https://github.com/epesco" class="user-mention">@epesco</a>
+<a href="https://github.com/msmcconnell" class="user-mention">@msmcconnell</a>
 <a href="https://github.com/amjaeger17" class="user-mention">@amjaeger17</a>
 <a href="https://github.com/rcjacques" class="user-mention">@rcjacques</a></p>
       </section>
