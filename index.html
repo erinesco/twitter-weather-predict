@@ -46,16 +46,51 @@ To combine our data, we iterated through the weather data and produced time rang
 <h4>
 <a id="labeling" class="anchor" href="#labeling" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Labeling</h4>
 
-<p>We iterated through all the tweets and produced a tuple consisting of a dictionary of the features they contained and the weather label which was found by looking up the time range they fell into and labeled them according to the weather type associated with that time range. An readable example of the labeled data is below:
-({contains(down.): True, contains(#debate): True, contains(how): True, contains(before): True, contains(the): True, contains(really): True, contains(showing): True, contains(affected): True, contains(crime): True, u'contains(<a href="https://github.com/billclinton" class="user-mention">@billclinton</a>)': True, contains(he): True, contains(there): True, contains(personally): True, contains(has): True, contains(debt): True, contains(you"): True, contains(was): True, contains(houston): True, contains("how): True,contains(cared): True, contains(that): True, contains(in): True}, 'Clear')</p>
+<p>We iterated through all the tweets and produced a tuple consisting of a dictionary of the features they contained and the weather label which was found by looking up the time range they fell into and labeled them according to the weather type associated with that time range. A readable example of the labeled data is below:
+    ({contains(down.): True, contains(#debate): True, contains(how): True, contains(before): True, contains(the): True, contains(really): True, contains(showing): True, contains(affected): True, contains(crime): True, u'contains(<a href="https://github.com/billclinton" class="user-mention">@billclinton</a>)': True, contains(he): True, contains(there): True, contains(personally): True, contains(has): True, contains(debt): True, contains(you"): True, contains(was): True, contains(houston): True, contains("how): True,contains(cared): True, contains(that): True, contains(in): True}, 'Clear')</p>
+
+<h4>
+<a id="validation" class="anchor" href="#validation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Validation</h4>
+
+<pre><code>We wrote our own cross-validation function which separates the data into n folds and then trains n times. On each iteration the training is conducted on n-1 folds, and the model is then tested on the remaining fold. It tracks the accuracy and training time of the model over each fold iteration and outputs the average accuracy for all iterations.
+</code></pre>
+
+<h3>
+<a id="naive-attempt" class="anchor" href="#naive-attempt" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Naive Attempt</h3>
+
+<h4>
+<a id="overview" class="anchor" href="#overview" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Overview</h4>
+
+<p>In order to better assess the success of our machine learning algorithms, a naive solution was created to use as a baseline for success. The method which was chosen was a simple keyword comparison. Since the weather data was classified into 9 categories, as discussed in Data Collection, 6 - 10 keywords were identified for each category. For example the keywords “thunderstorm”, “lightning”, “storm", and “high wind” were all associated with the category of Thunderstorm. To evaluate the predicted conditions of each tweet the number of keywords per category from the text each was recorded. The dominant category would then be the predicted weather conditions when that tweet was sent. However, since many tweets have nothing to do with weather this approach needed to be improved slightly to have any notable success. 
+To improve the accuracy of the naive approach, the tweets were bundled into 30-minute increments in order to correspond with each weather data point. To calculate the predicted weather in this 30 minute time block the total keyword count for each weather category was collected. The category with the most keywords would be selected as the prediction. If no keyword was detected in the last half hour then the previous weather was used. This is a reasonable assumption as weather rarely changes drastically over 30 min time steps. </p>
+
+<h4>
+<a id="accuracy" class="anchor" href="#accuracy" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Accuracy</h4>
+
+<p>The accuracy of the naive method was larger than we initially anticipated. The best accuracy recorded was 60.2%. Since, the prediction method was deterministic the algorithm only needed to be run once for each set of keywords on the data. We decided to compare the number of keywords per type with accuracy of the algorithm. The results of these tests can be seen in Figure 1. For all of these tests there was an average running time of 6.68 seconds. 
+<img src="http://i68.tinypic.com/35lrjax.jpg" alt="Figure 1: Accuracy of the naive algorithm vs the number of keywords used">
+The results of this experiment point out the biggest flaw with our approach. Since we collected weather data in real time for only about a week, the majority of the data was clear skys. Clear was the starting weather condition of our novice method. Therefore, even if no keywords were present it was still able to achieve 55% accuracy. The other interesting result was how 1-2 keywords resulted in much higher accuracy than larger numbers. This represents how the choice of keywords is far more important than the number used. </p>
 
 <h3>
 <a id="naive-bayes" class="anchor" href="#naive-bayes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Naive Bayes</h3>
 
 <h4>
-<a id="attempt-1" class="anchor" href="#attempt-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Attempt #1</h4>
+<a id="overview-1" class="anchor" href="#overview-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Overview</h4>
 
-<p>Here is text on attempt #1 naive bayes</p>
+<p>Naive Bayes is a classifier which assumes independence between features. In our instance the equation can be viewed as:
+P(weather|words) = P(likelihood of words) * P(weather) / P(evidence) 
+Note: We don’t need P(evidence) as it is a normalizer and is present in all calculations
+Naive bayes attempts to learn the P(weather|words) so that when it receives a new tweet where the words are features, it can predict the most likely weather at the time the tweet was posted.</p>
+
+<h4>
+<a id="accuracy-1" class="anchor" href="#accuracy-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Accuracy</h4>
+
+<p>Below is the accuracy of the classifier across two to ten folds.
+<img src="http://i68.tinypic.com/1425wur.jpg" alt="Figure 2: Naive Bayes accuracy vs number of folds">
+Across all folds, the average accuracy of the algorithm in predicting the weather was 59.43%. Over each fold the accuracy seems to be logarithmically increasing toward ~60.5%. Notably, a separate trial of 50 folds resulted in an accuracy of 60.5%.</p>
+
+<p>rrr
+Here is text on attempt #1 naive bayes</p>
 
 <h3>
 <a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Authors and Contributors</h3>
