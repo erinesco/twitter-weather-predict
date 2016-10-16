@@ -52,8 +52,7 @@ To combine our data, we iterated through the weather data and produced time rang
 <h4>
 <a id="validation" class="anchor" href="#validation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Validation</h4>
 
-<pre><code>We wrote our own cross-validation function which separates the data into n folds and then trains n times. On each iteration the training is conducted on n-1 folds, and the model is then tested on the remaining fold. It tracks the accuracy and training time of the model over each fold iteration and outputs the average accuracy for all iterations.
-</code></pre>
+<p>We wrote our own cross-validation function which separates the data into n folds and then trains n times. On each iteration the training is conducted on n-1 folds, and the model is then tested on the remaining fold. It tracks the accuracy and training time of the model over each fold iteration and outputs the average accuracy for all iterations.</p>
 
 <h3>
 <a id="naive-attempt" class="anchor" href="#naive-attempt" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Naive Attempt</h3>
@@ -68,8 +67,9 @@ To improve the accuracy of the naive approach, the tweets were bundled into 30-m
 <a id="accuracy" class="anchor" href="#accuracy" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Accuracy</h4>
 
 <p>The accuracy of the naive method was larger than we initially anticipated. The best accuracy recorded was 60.2%. Since, the prediction method was deterministic the algorithm only needed to be run once for each set of keywords on the data. We decided to compare the number of keywords per type with accuracy of the algorithm. The results of these tests can be seen in Figure 1. For all of these tests there was an average running time of 6.68 seconds. 
-<img src="http://i68.tinypic.com/35lrjax.jpg" alt="Figure 1: Accuracy of the naive algorithm vs the number of keywords used">
-The results of this experiment point out the biggest flaw with our approach. Since we collected weather data in real time for only about a week, the majority of the data was clear skys. Clear was the starting weather condition of our novice method. Therefore, even if no keywords were present it was still able to achieve 55% accuracy. The other interesting result was how 1-2 keywords resulted in much higher accuracy than larger numbers. This represents how the choice of keywords is far more important than the number used. </p>
+<img src="http://i68.tinypic.com/35lrjax.jpg" alt="Figure 1: Accuracy of the naive algorithm vs the number of keywords used"></p>
+
+<p>The results of this experiment point out the biggest flaw with our approach. Since we collected weather data in real time for only about a week, the majority of the data was clear skys. Clear was the starting weather condition of our novice method. Therefore, even if no keywords were present it was still able to achieve 55% accuracy. The other interesting result was how 1-2 keywords resulted in much higher accuracy than larger numbers. This represents how the choice of keywords is far more important than the number used. </p>
 
 <h3>
 <a id="naive-bayes" class="anchor" href="#naive-bayes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Naive Bayes</h3>
@@ -89,8 +89,34 @@ Naive bayes attempts to learn the P(weather|words) so that when it receives a ne
 <img src="http://i68.tinypic.com/1425wur.jpg" alt="Figure 2: Naive Bayes accuracy vs number of folds">
 Across all folds, the average accuracy of the algorithm in predicting the weather was 59.43%. Over each fold the accuracy seems to be logarithmically increasing toward ~60.5%. Notably, a separate trial of 50 folds resulted in an accuracy of 60.5%.</p>
 
-<p>rrr
-Here is text on attempt #1 naive bayes</p>
+<h4>
+<a id="time" class="anchor" href="#time" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Time</h4>
+
+<p><img src="http://i63.tinypic.com/143g66h.jpg" alt="Figure 3: Training time per cost validation">
+There was a direct correlation between the number of folds and the time it took to create, train and test the model. The time increased linearly with the increase in folds at a rate of about 24 seconds per fold. The insignificant advancement in accuracy vs time it takes to construct these models alludes to the tradeoff between model accuracy/complexity and practicality.</p>
+
+<h4>
+<a id="most-informative-features" class="anchor" href="#most-informative-features" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Most Informative Features</h4>
+
+<p>The most informative features for our final model(s) are listed below:
+<img src="http://i63.tinypic.com/xn80ls.jpg" alt="Figure 4: The most informative features (words) detected by naive bayes">
+It is clear that our model thinks whenever there is a presidential debate or SNL is on then it is not clear outside. These models probably wouldn’t perform super well on future data given the weather outside is independent of TV broadcasting (maybe). We were more interested in everyday nuances and colloquial conversations and word choices that could predict the weather as opposed to being overtaken by a few large-scale events. This could have been improved with more data. An interesting set of most informative features came from when we had less data (prior to the debate) which are shown below:
+<img src="http://i65.tinypic.com/2ik2r05.jpg" alt="Figure 5: Particularly interesting informative features when considering current events">
+The word coat indicates it is cloudy out with high certainty as well as the word pumpkins. Although I have no explanation for the latter, we aren’t concerned with why a word indicates whether just the fact that it can. However, coat makes sense in terms of what we typically associate with cloudy weather. With more data collected, we would expect to see more frequently used words independent of the major events in the twitter conversation.</p>
+
+<h3>
+<a id="positive-naive-bayes" class="anchor" href="#positive-naive-bayes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>POSITIVE NAIVE BAYES</h3>
+
+<h4>
+<a id="overview-2" class="anchor" href="#overview-2" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Overview</h4>
+
+<p>Positive Naive Bayes is a variant of bayes included in the NLTK API, it trains with partially labeled data to perform a binary classification. In this implementation, models were trained for each weather type, and test inputs are then classified as either true or false as having taken place during that specific type of weather. The model requires two data sets to train, a labeled set, and an unlabeled one. The unlabeled set with a random assortment of actual weathers and is used to determine the frequency of the features from the labeled set in general vocabulary. As only three types of weather were observed there were only three models needed. After the inputs are shuffled to create the folds for cross validation, the training data is resorted into lists by known weather type to be used to train the weather models.</p>
+
+<h4>
+<a id="time-1" class="anchor" href="#time-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Time</h4>
+
+<p>Positive Naive Bayes needs to train three models for every iteration, and classify the test set three times. There is only a slight increase in time required for training and testing more folds. The individual time for the three different models is almost identical, and the time for all of them scales to be three times slower. It also requires much lower run time than naive bayes models that include all three types of weather. 
+<img src="http://i67.tinypic.com/fw7hxc.jpg" alt="Figure 6: Positive Naive Bayes training time vs number of folds"></p>
 
 <h3>
 <a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Authors and Contributors</h3>
