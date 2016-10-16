@@ -32,15 +32,15 @@
 <a id="problem-statement" class="anchor" href="#problem-statement" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Problem Statement</h3>
 
 <p>Five hundred million tweets are posted per day via twitter. Twitter is commonly used for sentiment analysis and     Five hundred million tweets are posted per day via twitter. Twitter is commonly used for sentiment analysis and quantifying influence, but can a tweet be used to predict the weather in a given area? Natural disasters and extreme weather prediction are popular choices for mining twitter data, but few attempts have been made for the day to day weather. This paper explores the possibility of utilizing supervised learning to classify a location’s weather after training on the lexicon associated with a certain weather type. The methods explored are a naive attempt, naive bayes, positive naive bayes, support vector machines, and ensembling. Within each algorithm, we explore the training, construction, and performance of the model. 
-In 2013, CrowdFlower created a competition around solving this very task and the winner created a ridge regression model and an ensemble of forests where the output of the ensemble was fed back into the ridge regression model as input to relearn. Our aim is not for accuracy, but for analysis of more simple methods’ performance on this task. Weather prediction using tweets is complex; words are not independent of each other, given a small subset the likelihood of certain words and weather associations are skewed. The methods we use are not suited for a time series problem like weather prediction where the weather of one time step is dependent on a prior step. More complex and/or time step dependent methods should be considered as more viable options if accuracy is the ultimate goal, but we are interested in exploring the performance of simple, easily accessible algorithms in this space. </p>
+In 2013, CrowdFlower created a competition around solving this very task and the winner created a ridge regression model and an ensemble of forests where the output of the ensemble was fed back into the ridge regression model as input to relearn. Our aim is not for accuracy, but for analysis of more simple methods’ performance on this task. Weather prediction using tweets is complex; words are not independent of each other, given a small subset the likelihood of certain words and weather associations are skewed. The methods we use are not suited for a time series problem like weather prediction where the weather of one-time step is dependent on a prior step. More complex and/or time step dependent methods should be considered as more viable options if accuracy is the ultimate goal, but we are interested in exploring the performance of simple, easily accessible algorithms in this space. </p>
 
 <h3>
-<a id="data-collection--processing" class="anchor" href="#data-collection--processing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>DATA COLLECTION &amp; PROCESSING</h3>
+<a id="data-collection--processing" class="anchor" href="#data-collection--processing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Data Collection &amp; Processing</h3>
 
 <h4>
 <a id="collection" class="anchor" href="#collection" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Collection</h4>
 
-<p>We collected data from the evening of October 4th to the morning of Oct 10th which produced 119, 061 tweets and 135 hours of weather data at half hour intervals.  Using the twitter streaming API, we filtered on location and used the OpenWeatherMap API to check weather for city of Boston. The weather data came pre-divided into 9 categories. These were Thunderstorm, Drizzle, Rain, Snow, Clear, Clouds, Extreme, Atmosphere, and Additional. Extreme weather refered to conditions like hurricanes, tornadoes, and hail. Atmosphere included conditions which impair human vision such as fog, dust, and ash. Finally, Additional was for any weather that did not fit into the above categories.
+<p>We collected data from the evening of October 4th to the morning of Oct 10th which produced 119, 061 tweets and 135 hours of weather data at half hour intervals.  Using the twitter streaming API, we filtered on location and used the OpenWeatherMap API to check the weather for the city of Boston. The weather data came pre-divided into 9 categories. These were Thunderstorm, Drizzle, Rain, Snow, Clear, Clouds, Extreme, Atmosphere, and Additional. Extreme weather refered to conditions like hurricanes, tornadoes, and hail. Atmosphere included conditions which impair human vision such as fog, dust, and ash. Finally, Additional was for any weather that did not fit into the above categories.
 To combine our data, we iterated through the weather data and produced time ranges of each span of continuous weather and added them to a dictionary where the key was one of the weather types defined by the weather API (9 in total) and the values were tuples of time ranges that the given weather type occurred. </p>
 
 <h4>
@@ -105,7 +105,7 @@ It is clear that our model thinks whenever there is a presidential debate or SNL
 The word coat indicates it is cloudy out with high certainty as well as the word pumpkins. Although I have no explanation for the latter, we aren’t concerned with why a word indicates whether just the fact that it can. However, coat makes sense in terms of what we typically associate with cloudy weather. With more data collected, we would expect to see more frequently used words independent of the major events in the twitter conversation.</p>
 
 <h3>
-<a id="positive-naive-bayes" class="anchor" href="#positive-naive-bayes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>POSITIVE NAIVE BAYES</h3>
+<a id="positive-naive-bayes" class="anchor" href="#positive-naive-bayes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Positive Naive Bayes</h3>
 
 <h4>
 <a id="overview-2" class="anchor" href="#overview-2" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Overview</h4>
@@ -126,7 +126,7 @@ Two metrics were used to calculate the success rate when testing all the models 
 As the classifier is broken up by weather it is also easier to see how well each type of weather is predicted. The classification for clear days performs the best. During the data collection period, clear weather was seen the most common weather. As a result, both blindly classifying all tweets as ‘clear’ would be the most accurate and there is more training data for ‘Clear’ days with leads to a better model. </p>
 
 <h3>
-<a id="support-vector-machine" class="anchor" href="#support-vector-machine" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>SUPPORT VECTOR MACHINE</h3>
+<a id="support-vector-machine" class="anchor" href="#support-vector-machine" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Support Vector Machine</h3>
 
 <h4>
 <a id="overview-3" class="anchor" href="#overview-3" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Overview</h4>
@@ -149,12 +149,12 @@ We implemented an SVM using the SVMs available as part of the Scikit-Learn pytho
 <p>Based on the results traditional Linear SVM was superior to the other methods by far. With both the highest accuracy at 62.5% and the shortest running time at 34.15 seconds. These results were somewhat surprising. While Crammer, Singer performance is consistent with our expectations from research, we expected the more complex RBF kernel algorithms to outperform Linear SVM even if it had a longer running time. It is possible, that there is simply not enough divide amongst the data when using words as features to provide a benefit for complex decision boundaries vs linear ones.</p>
 
 <h3>
-<a id="ensembling" class="anchor" href="#ensembling" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>ENSEMBLING</h3>
+<a id="ensembling" class="anchor" href="#ensembling" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Ensembling</h3>
 
 <h4>
 <a id="overview-4" class="anchor" href="#overview-4" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Overview</h4>
 
-<pre><code>In order to increase to the accuracy of our learning algorithms we decided to combine the predictions from each one in an ensemble. Alone each of our learning algorithms have an accuracy of around 60%, but combining their predictions increases our expected accuracy and confidence. In order to actually combine the algorithms we first trained each one of them separately and then, once training has been completed, new tweets are fed into the ensemble. Each new tweet is classified by each learning algorithm and then the predictions are used to vote for what the ensemble will use as its prediction. For example if the Naive Bayes algorithm’s prediction agrees with that of the SVM algorithm but not with the Positive Naive Bayes algorithm then the vote of 2 to 1 will result in the ensemble’s prediction matching that of the Naive Bayes and SVM algorithms. 
+<pre><code>In order to increase the accuracy of our learning algorithms, we decided to combine the predictions from each one in an ensemble. Alone each of our learning algorithms have an accuracy of around 60%, but combining their predictions increases our expected accuracy and confidence. In order to actually combine the algorithms we first trained each one of them separately and then, once training has been completed, new tweets are fed into the ensemble. Each new tweet is classified by each learning algorithm and then the predictions are used to vote for what the ensemble will use as its prediction. For example if the Naive Bayes algorithm’s prediction agrees with that of the SVM algorithm but not with the Positive Naive Bayes algorithm then the vote of 2 to 1 will result in the ensemble’s prediction matching that of the Naive Bayes and SVM algorithms. 
 </code></pre>
 
 <h4>
@@ -165,13 +165,13 @@ We implemented an SVM using the SVMs available as part of the Scikit-Learn pytho
 The accuracy of our ensemble peaks at a value of 62.5 percent at around 90.9 percent training data vs 9.1 percent test data. Any further increase in training data percentage results in a drastic decrease in accuracy. </p>
 
 <h3>
-<a id="conclusion" class="anchor" href="#conclusion" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>CONCLUSION</h3>
+<a id="conclusion" class="anchor" href="#conclusion" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Conclusion</h3>
 
 <pre><code>In conclusion, using Twitter to predict the weather in a given area is possible. However, the accuracy of such a weather prediction system could be greatly increased using more data collected from Twitter. We found that using a Naive Bayes learning algorithm on this kind of data is feasible but the maximum accuracy that we were able to achieve was only 60.5%. Comparing this to using a SVM learning algorithm, which was able to achieve an accuracy of 62.5%, the SM learning algorithm is slightly superior. The downside to the SVM algorithm is that it takes longer to train its model then Naive Bayes. We found that the positive Naive Bayes algorithm was not a good choice for this kind of data, mainly because of the way that we determined features. Needing to train on three different data sets was also inefficient and unnecessary for our purposes. The ensemble of all three of these algorithms was intended to improve the overall accuracy of the predictions when compared to the accuracy that each could achieve by itself. However, the maximum accuracy that we were able to achieve for the ensemble was the same as the maximum accuracy for the SVM algorithm. This may be because more data was needed to see any difference in accuracy, but it is more likely that it is because a greater variety of different algorithms was needed. Positive Naive Bayes and Naive Bayes were most likely too similar to one another to result in any real variance, and SVM is what brought the accuracy of the ensemble up to its maximum. Further recommendations for improving weather prediction using Twitter data is included below.
 </code></pre>
 
 <h3>
-<a id="recommendations" class="anchor" href="#recommendations" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>RECOMMENDATIONS</h3>
+<a id="recommendations" class="anchor" href="#recommendations" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Recommendations</h3>
 
 <h4>
 <a id="feature-selection" class="anchor" href="#feature-selection" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Feature Selection</h4>
@@ -194,7 +194,7 @@ The accuracy of our ensemble peaks at a value of 62.5 percent at around 90.9 per
 <p>The data collection methods used for these experiments could have been vastly improved if given more time. Primarily, spreading tweet data collection over a whole year would have been particularly interesting. This would allow for the data to reflect almost all possible weather scenarios in the region. The major drawback to this method would be the data required. The tweet data from only ~ 1 week took up over 430Mb of space. Over the course of the year this could add up to almost 22Gb of data. Not an unmanageable about but somewhat inconvenient. However, the increased variety of weather would make this compromise more than worth it. </p>
 
 <h3>
-<a id="credits--citation" class="anchor" href="#credits--citation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>CREDITS &amp; CITATION</h3>
+<a id="credits--citations" class="anchor" href="#credits--citations" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Credits &amp; Citations</h3>
 
 <p>Bird, Steven, Edward Loper and Ewan Klein (2009), Natural Language Processing with Python. O’Reilly Media Inc.</p>
 
